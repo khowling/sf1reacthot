@@ -4,7 +4,10 @@
 var webpack = require('webpack');
 
 module.exports = {
-    devtool: 'eval',
+    /* Switch loaders to debug mode. */
+    debug: true,
+    /* Choose a developer tool to enhance debugging */
+    devtool: 'source-map',
     entry: [
         'webpack-dev-server/client?http://localhost:3000',
         'webpack/hot/only-dev-server',
@@ -15,13 +18,13 @@ module.exports = {
         filename: 'bundle.js',
         publicPath: '/output/'
     },
+    resolve: {
+        extensions: ['', '.js']
+    },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin()
     ],
-    resolve: {
-        extensions: ['', '.js']
-    },
     module: {
         loaders: [
             {test: /\.js$/,
