@@ -105,7 +105,7 @@ var statictasks = [];
     });
 });
 
-var page = {name: "sf1react", src: "index.html", dest: "./metadata/pages"};
+var page = {name: "myreact1", src: "index.html", dest: "./metadata/pages"};
 
 gulp.task ("page:meta", function() {
     return string_src(page.name+".page-meta.xml",

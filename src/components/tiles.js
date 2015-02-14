@@ -16,11 +16,13 @@ var Report = React.createClass({
         var box = $(event.currentTarget).parents(".box").first();
         //Find the body and the footer
         var bf = box.find(".box-body, .box-footer");
+        var self = this;
         if (!box.hasClass("collapsed-box")) {
             box.addClass("collapsed-box");
             //Convert minus into plus
             $(event.currentTarget).children(".fa-minus").removeClass("fa-minus").addClass("fa-plus");
             bf.slideUp();
+            self.setState({open: false});
         } else {
             box.removeClass("collapsed-box");
             //Convert plus into minus
@@ -32,7 +34,7 @@ var Report = React.createClass({
             // get new data!!!
             var rdata = this.props.data.Report__r;
             console.log ('get Quickview for report : ' + rdata.Id);
-            var self = this;
+
             var qsttr = "select Id, Name, Actual__c, Target__c from QuickView__c where Report__c = '"+rdata.Id+"'",
                 xhr_opts = {
                     url: _sfdccreds.sf_host_url + _sfdccreds.sfdc_api_version + '/query.json?q=' + qsttr,
@@ -42,12 +44,12 @@ var Report = React.createClass({
             let ch = xhr(xhr_opts, chan(1, t.map(x => x.json)));
             self.setState({ loading: true });
             csp.takeAsync (ch, function(i) {
-                self.setState({open: true, quickview:  i.records});
+                self.setState({open: true, loading: false, quickview:  i.records});
             });
         }
     },
     componentWillUpdate( nextProps,  nextState) {
-        console.log ('Report componentWillUpdate : ');
+        console.log ('Report componentWillUpdate : state ' + JSON.stringify (nextState));
         //Use this as an opportunity to perform preparation before an update occurs
         // You cannot use this.setState() in this method
 
@@ -220,56 +222,28 @@ var TileList= React.createClass({
         self.setState({ loading: true });
         csp.takeAsync (ch, function(i) {
             // report count
-            var tcounts = {}, tcounts2 = {},tcounts3 = {}, tcounts4 = {};
-            for (var tidx in i.records) {
-                var tile = i.records[tidx];
-                tile.tcnt = tile.Associated_Reports__r && tile.Associated_Reports__r.totalSize || 0
-                if (tile.tcnt >0 && tile.Parent__c) {
-                    if (tcounts[tile.Parent__c])
-                        tcounts[tile.Parent__c] = tile.tcnt + tcounts[tile.Parent__c];
-                    else
-                        tcounts[tile.Parent__c] = tile.tcnt;
-                }
-            }
-            for (var tidx in i.records) {
-                var tile = i.records[tidx];
-                if (tcounts[tile.Id] > 0 ) {
-                    tile.tcnt = tcounts[tile.Id] + (tile.tcnt || 0);
-
-                    if (tcounts2[tile.Parent__c]>0)
-                        tcounts2[tile.Parent__c] = tile.tcnt + tcounts2[tile.Parent__c];
-                    else
-                        tcounts2[tile.Parent__c] = tile.tcnt;
-                }
-            }
-            for (var tidx in i.records) {
-                var tile = i.records[tidx];
-                if (tcounts2[tile.Id] > 0 ) {
-                    tile.tcnt = tcounts2[tile.Id]  + (tile.tcnt || 0);
-
-                    if (tcounts3[tile.Parent__c]>0)
-                        tcounts3[tile.Parent__c] = tile.tcnt + tcounts3[tile.Parent__c];
-                    else
-                        tcounts3[tile.Parent__c] = tile.tcnt;
-                }
-            }
-            for (var tidx in i.records) {
-                var tile = i.records[tidx];
-                if (tcounts3[tile.Id] > 0 ) {
-                    tile.tcnt = tcounts3[tile.Id]  + (tile.tcnt || 0);
-
-                    if (tcounts4[tile.Parent__c]>0)
-                        tcounts4[tile.Parent__c] = tile.tcnt + tcounts4[tile.Parent__c];
-                    else
-                        tcounts4[tile.Parent__c] = tile.tcnt;
-                }
-            }
-            for (var tidx in i.records) {
-                var tile = i.records[tidx];
-                if (tcounts4[tile.Id] > 0) {
-                    tile.tcnt = tcounts4[tile.Id]  + (tile.tcnt || 0);
-                }
-            }
+            var res = null;
+            do {
+                console.log ('calling rollup with : ' + JSON.stringify (res));
+                res = (function (calcChildTot, recs) {
+                    let calcParent = {}, firsttime = !calcChildTot;
+                    for (var tidx in recs) {
+                        var tile = recs[tidx];
+                        if (firsttime) {
+                            console.log('This is the first time, set tcnt on all tiles to number of child accociated reports')
+                            tile.tcnt = tile.Associated_Reports__r && tile.Associated_Reports__r.totalSize || 0;
+                        } else if (calcChildTot[tile.Id] > 0 ) {
+                            console.log ('Not first time & found a child rollup number for this parent, add it to the tcnt')
+                            tile.tcnt = calcChildTot[tile.Id] + (tile.tcnt || 0);
+                        }
+                        if (tile.tcnt > 0 && tile.Parent__c && (firsttime || calcChildTot[tile.Id] > 0 )) {
+                            console.log ('Need to Calculate Parent of : ' + tile.Name + ' : ' + tile.tcnt);
+                            calcParent[tile.Parent__c] = (firsttime && tile.tcnt || calcChildTot[tile.Id]) + (calcParent[tile.Parent__c] || 0) ;
+                        }
+                    }
+                    return calcParent;
+                })(res, i.records);
+            } while (Object.keys(res).length >0)
             self.setState({  loading: false, tiles: i.records});
         });
     },
