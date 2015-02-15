@@ -18,9 +18,6 @@ module.exports = {
         filename: 'bundle.js',
         publicPath: '/output/'
     },
-    resolve: {
-        extensions: ['', '.js']
-    },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoErrorsPlugin()
@@ -30,7 +27,6 @@ module.exports = {
             {test: /\.js$/,
                 exclude: [/static\/js\/lib\/.*\.js$/, /src\/lib\/csp\/.*/, /node_modules\/.*/],
                 loader: '6to5'},
-
             { test: /\.js$/, loaders: ['react-hot', 'jsx?harmony'], exclude: /node_modules/ },
         ]
     }
