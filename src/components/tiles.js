@@ -110,18 +110,33 @@ var Report = React.createClass({
                                 <tbody>
                                     <tr>
                                         <th className="wdth-l">QuickView</th>
-                                        <th className="wdth-m">Progress</th>
-                                        <th className="wdth-s">%</th>
+                                        <th>Actual</th>
+                                        <th >Target</th>
+                                        <th className="wdth-s">Diff</th>
                                     </tr>
                                     {this.state.quickview.map(function(row, i) { return (
                                     <tr>
                                         <td>{row.Name}</td>
                                         <td>
-                                            <div className="progress xs">
-                                                <div className={React.addons.classSet({"progress-bar": true, "progress-bar-danger": row.Actual__c < row.Target__c, "progress-bar-success":row.Actual__c >= row.Target__c})} style={{width: (row.Actual__c/row.Target__c*100).toFixed(2)+"%"}}></div>
+
+                                        {/*    <div className="progress xs">
+                                               <div className={React.addons.classSet({"progress-bar": true, "progress-bar-danger": row.Actual__c < row.Target__c, "progress-bar-success":row.Actual__c >= row.Target__c})} style={{width: (row.Actual__c/row.Target__c*100).toFixed(2)+"%"}}></div>
                                             </div>
+                                        */}
+                                            {row.Actual__c}
                                         </td>
-                                        <td><span className="badge bg-red">{(row.Actual__c/row.Target__c*100).toFixed(2)} %</span></td>
+                                        <td>
+                                            {row.Target__c}
+                                        </td>
+                                        <td>
+                                        {/*
+                                          <span className="badge bg-red">{(row.Actual__c/row.Target__c*100).toFixed(2)} %</span>
+                                        */}
+                                        {(row.Actual__c - row.Target__c).toFixed(2) }<i className={cx({
+                                            "fa": true,
+                                            "fa-arrow-up text-green": row.Actual__c >= row.Target__c,
+                                            "fa-arrow-down text-red": row.Actual__c < row.Target__c})}></i>
+                                          </td>
                                     </tr>
                                     );})}
                                 </tbody></table>
@@ -168,7 +183,7 @@ var Tile = React.createClass({
                         <i className={iclass}></i>
                     </div>
                     <div  className="small-box-footer">
-                        Search {tdata.Name} <i className="fa fa-arrow-circle-right"></i>
+                        Explore {tdata.Name} <i className="fa fa-arrow-circle-right"></i>
                     </div>
                 </a>
             </div>
@@ -296,9 +311,9 @@ var TileList= React.createClass({
         var padding0 =  { padding: '0px' };
         return (
             <section className="content">
-                <div className="page-header">
+                <div className="page-header-kh">
                     <ol className="breadcrumb" style={padding0}>
-                        <li><a href="#" onClick={this.handleNavClick.bind(this, null)}><i className="fa fa-dashboard"></i> Home</a></li>
+                        <li className="margin-0"><a href="#" onClick={this.handleNavClick.bind(this, null)}><i className="fa fa-dashboard"></i> Home</a></li>
                         {this.state.breadcrumbs.map(function(rt, i) { return (
                             <li className="active"><a href="#" onClick={self.handleNavClick.bind(self, rt.id)}>{rt.name}</a></li>
                         );})}
