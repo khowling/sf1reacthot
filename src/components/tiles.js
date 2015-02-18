@@ -22,7 +22,8 @@ var Report = React.createClass({
             //Convert minus into plus
             $(event.currentTarget).children(".fa-minus").removeClass("fa-minus").addClass("fa-plus");
             bf.slideUp();
-            self.setState({open: false});
+            box.find(".bar-chart").empty();
+            setTimeout( () => self.setState({open: false}), 1000);
         } else {
             box.removeClass("collapsed-box");
             //Convert plus into minus
@@ -35,7 +36,7 @@ var Report = React.createClass({
             var rdata = this.props.data.Report__r;
             console.log ('get Quickview for report : ' + rdata.Id);
 
-            var qsttr = "select Id, Name, Actual__c, Target__c from QuickView__c where Report__c = '"+rdata.Id+"'",
+            var qsttr = "select Id, Name, Actual__c, Target__c, Report__r.Visual_Type__c from QuickView__c where Report__c = '"+rdata.Id+"'",
                 xhr_opts = {
                     url: _sfdccreds.sf_host_url + _sfdccreds.sfdc_api_version + '/query.json?q=' + qsttr,
                     headers: {  "Authorization": "OAuth " + _sfdccreds.session_api}
@@ -44,7 +45,25 @@ var Report = React.createClass({
             let ch = xhr(xhr_opts, chan(1, t.map(x => x.json)));
             self.setState({ loading: true });
             csp.takeAsync (ch, function(i) {
-                self.setState({open: true, loading: false, quickview:  i.records});
+
+              var viewtype = (i.records.length > 0) && i.records[0].Report__r.Visual_Type__c || 'NONE';
+                if (viewtype === 'GRAPH') {
+                  new Morris.Bar({
+                    // ID of the element in which to draw the chart.
+                    element: box.find(".bar-chart"),
+                    // Chart data records -- each entry in this array corresponds to a point on
+                    // the chart.
+                    data: i.records,
+                    // The name of the data record attribute that contains x-values.
+                    xkey: 'Name',
+                    // A list of names of data record attributes that contain y-values.
+                    ykeys: ['Actual__c', 'Target__c'],
+                    // Labels for the ykeys -- will be displayed when you hover over the
+                    // chart.
+                    labels: ['Actual', 'Target']
+                  });
+                }
+                setTimeout( () => self.setState({open: true, loading: false, quickview:  i.records, viewtype: viewtype}), 1000);
             });
         }
     },
@@ -106,6 +125,13 @@ var Report = React.createClass({
                         <p>{rdata.Summary__c}
                         </p><br/>
                         <div className="box-body no-padding">
+
+                            <div className="chart-responsive">
+                                <div className="chart bar-chart"  style={{'max-height': '300px'}}>
+                                </div>
+                            </div>
+
+                            { this.state.viewtype == 'TABLE' && (
                             <table className="table table-striped">
                                 <tbody>
                                     <tr>
@@ -118,20 +144,12 @@ var Report = React.createClass({
                                     <tr>
                                         <td>{row.Name}</td>
                                         <td>
-
-                                        {/*    <div className="progress xs">
-                                               <div className={React.addons.classSet({"progress-bar": true, "progress-bar-danger": row.Actual__c < row.Target__c, "progress-bar-success":row.Actual__c >= row.Target__c})} style={{width: (row.Actual__c/row.Target__c*100).toFixed(2)+"%"}}></div>
-                                            </div>
-                                        */}
-                                            {row.Actual__c}
+                                            {(row.Actual__c || 0).toFixed(2)}
                                         </td>
                                         <td>
-                                            {row.Target__c}
+                                            {(row.Target__c || 0).toFixed(2)}
                                         </td>
                                         <td>
-                                        {/*
-                                          <span className="badge bg-red">{(row.Actual__c/row.Target__c*100).toFixed(2)} %</span>
-                                        */}
                                         {(row.Actual__c - row.Target__c).toFixed(2) }<i className={cx({
                                             "fa": true,
                                             "fa-arrow-up text-green": row.Actual__c >= row.Target__c,
@@ -139,7 +157,8 @@ var Report = React.createClass({
                                           </td>
                                     </tr>
                                     );})}
-                                </tbody></table>
+                              </tbody></table>
+                              )}
                         </div><br/>
                     </div>
                     <div className="box-footer" style={divStyleHidden}>
@@ -176,7 +195,7 @@ var Tile = React.createClass({
             <div className="col-xs-12 col-sm-4 col-md-3 col-lg-2">
                 <a href="#" onClick={this.setFilter.bind(this, tdata.Id)} className={boxclass}>
                     <div className="inner">
-                        <h3>{tdata.tcnt}</h3>
+                        <h3>  {tdata.tcnt}</h3>
                         <p>{tdata.Name}</p>
                     </div>
                     <div className="icon">
