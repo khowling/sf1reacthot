@@ -2,11 +2,9 @@ var os = require('os');
 var path = require('path');
 var gulp = require('gulp');
 var gutil = require("gulp-util");
-var to5 = require('gulp-6to5');
+var babel = require('gulp-babel');
 var rename = require('gulp-rename');
-var header = require('gulp-header');
-var cache = require('gulp-cached');
-var ignore = require('gulp-ignore');
+var gulpif = require('gulp-if');
 var zip = require ("gulp-zip");
 var replace = require('gulp-replace');
 var headerfooter = require('gulp-headerfooter');
@@ -19,8 +17,8 @@ var webpackConfig = require("./webpack.config.js");
 // run npm js-csp through 6to5, store in src/lib/csp
 gulp.task("regenerate", function(done) {
     return gulp.src('node_modules/js-csp/src/**/*.js')
-        .pipe(gulpif(/src\/csp.js/, rename('index.js')))
-        .pipe(to5())
+        .pipe(gulpif(/src[\\\/]csp.js/, rename('index.js')))
+        .pipe(babel())
         .pipe(gulp.dest('src/lib/csp'));
 });
 
@@ -130,11 +128,9 @@ gulp.task ("page:vf", function() {
         .pipe(gulp.dest (page.dest));
 });
 
-gulp.task('force:import', function () {
+gulp.task('force:import', ["package:meta", "page:meta", "page:vf"].concat(statictasks), function () {
     exec('force import', function (err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
     });
 })
-
-gulp.task('makesfdc', gulp.series('webpack:build', "package:meta", statictasks, "page:meta", "page:vf", "force:import"));

@@ -25,9 +25,9 @@ module.exports = {
     module: {
         loaders: [
             {test: /\.js$/,
-                exclude: [/static\/js\/lib\/.*\.js$/, /src\/lib\/csp\/.*/, /node_modules\/.*/],
-                loader: '6to5'},
-            { test: /\.js$/, loaders: ['react-hot', 'jsx?harmony'], exclude: /node_modules/ },
+                exclude: [/static[\\\/]js[\\\/]lib[\\\/].*\.js$/, /src[\\\/]lib[\\\/]csp[\\\/].*/, /node_modules[\\\/].*/],
+                loaders:  ['react-hot', 'babel-loader']},
+        //    { test: /\.js$/, loaders: ['react-hot', 'jsx?harmony'], exclude: /node_modules/ },
         ]
     }
 };
