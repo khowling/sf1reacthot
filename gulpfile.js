@@ -22,7 +22,7 @@ gulp.task("regenerate", function(done) {
         .pipe(gulp.dest('src/lib/csp'));
 });
 
-gulp.task('webpack:build', function(callback) {
+gulp.task("webpack:build", function(callback) {
     // modify some webpack config options
     var myConfig = Object.create(webpackConfig);
     myConfig.debug = false;
@@ -86,7 +86,7 @@ var statictasks = [];
     {name: "App", src: ['static/css/*', 'static/output/*', 'static/images/*']}
 ].forEach(function(sr) {
     statictasks.push(sr.name + ":res");
-    gulp.task (sr.name + ":res", function() {
+    gulp.task (sr.name + ":res", ["webpack:build"], function() {
         return gulp.src(sr.src)
             .pipe(zip(sr.name+".resource"))
             .pipe(gulp.dest ('./metadata/staticresources'));
@@ -128,7 +128,7 @@ gulp.task ("page:vf", function() {
         .pipe(gulp.dest (page.dest));
 });
 
-gulp.task('force:import', ["package:meta", "page:meta", "page:vf"].concat(statictasks), function () {
+gulp.task('force:import', ["webpack:build", "package:meta", "page:meta", "page:vf"].concat(statictasks), function () {
     exec('force import', function (err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
