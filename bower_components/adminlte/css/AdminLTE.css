@@ -1,6 +1,6 @@
 @import url(//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic);
 @import url(//fonts.googleapis.com/css?family=Kaushan+Script);
-/*! 
+/*!
  *   AdminLTE v1.2
  *   Author: AlmsaeedStudio.com
  *   License: Open source - MIT
@@ -746,7 +746,7 @@ body > .header .logo .icon {
     left: 0px;
   }
 }
-/* 
+/*
     Dropdown menus
 ----------------------------
 */
@@ -1042,6 +1042,8 @@ body > .header .logo .icon {
   color: #666666;
 }
 /* Add fade animation to dropdown menus */
+/* Comment out - SF1 hates this feature
+ **
 .open:not(.dropup) > .dropdown-menu {
   animation-name: fadeAnimation;
   animation-duration: .7s;
@@ -1059,6 +1061,8 @@ body > .header .logo .icon {
   -moz-animation-timing-function: ease;
   -moz-animation-fill-mode: forwards;
 }
+  **
+  */
 @keyframes fadeAnimation {
   from {
     opacity: 0;
@@ -1123,7 +1127,7 @@ body > .header .logo .icon {
     left: auto;
   }
 }
-/* 
+/*
    All form elements including input, select, textarea etc.
 -----------------------------------------------------------------
 */
@@ -1173,7 +1177,7 @@ body > .header .logo .icon {
 .radio {
   padding-left: 0;
 }
-/* 
+/*
     Compenent: Progress bars
 --------------------------------
 */
@@ -1324,6 +1328,7 @@ body > .header .logo .icon {
   text-decoration: none;
   color: #f9f9f9;
 }
+/*
 .small-box:hover .icon {
   animation-name: tansformAnimation;
   animation-duration: .5s;
@@ -1341,6 +1346,7 @@ body > .header .logo .icon {
   -moz-animation-timing-function: ease;
   -moz-animation-fill-mode: forwards;
 }
+*/
 @keyframes tansformAnimation {
   from {
     font-size: 90px;
@@ -1357,6 +1363,7 @@ body > .header .logo .icon {
     font-size: 100px;
   }
 }
+/*
 @media screen and (max-width: 480px) {
   .small-box {
     text-align: center;
@@ -1368,6 +1375,7 @@ body > .header .logo .icon {
     font-size: 12px;
   }
 }
+*/
 /*
     component: Boxes
 -------------------------
@@ -2038,7 +2046,7 @@ Component: timeline
   -moz-border-radius: 50%;
   border-radius: 50%;
 }
-/* 
+/*
     Component: callout
 ------------------------
 */
@@ -2078,7 +2086,7 @@ Component: timeline
 .callout.callout-info h4 {
   color: #3A87AD;
 }
-/* 
+/*
     Component: alert
 ------------------------
 */
@@ -2390,7 +2398,7 @@ Component: timeline
   margin-top: 30px;
   text-align: center;
 }
-/* 
+/*
     Page: register and login
 */
 .form-box {
@@ -2455,7 +2463,7 @@ Component: timeline
     width: 90%;
   }
 }
-/* 
+/*
     Page: 404 and 500 error pages
 ------------------------------------
 */
@@ -2505,7 +2513,7 @@ Component: timeline
 .error-page:after {
   clear: both;
 }
-/* 
+/*
     Page: Invoice
 */
 .invoice {
@@ -2538,12 +2546,12 @@ Component: timeline
     white-space: normal!important;
   }
 }
-/* 
+/*
     Skins
     -----
 */
-/* 
-    Skin Blue 
+/*
+    Skin Blue
     ---------
 */
 /* skin-blue navbar */

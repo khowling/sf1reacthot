@@ -215,7 +215,7 @@ var TileList= React.createClass({
     //mixins: [ State ],
     getInitialState: function(){
         console.log ('TileList InitialState : ');
-        return { breadcrumbs: [], tiles: [], loading: false, filter: null };
+        return { breadcrumbs: [], tiles: [], loading: false, filter: null, funct: 'All' };
     },
     componentWillReceiveProps: function () {
         let cbc = this.state.breadcrumbs,
@@ -246,7 +246,7 @@ var TileList= React.createClass({
     componentDidMount: function(){
         console.log ('TileList componentDidMount : ');
         var self = this;
-        var qsttr = "select Id, Name, Tile_Colour__c, Tile_Icon__c, parent__c, (select name, id, report__r.Id, report__r.Name, report__r.summary__c, report__r.actual__c, report__r.target__c, report__r.difference__c, report__r.Source__c, report__r.Status__c from Associated_Reports__r where report__r.Status__c = 'Published' ) from Tiles__c where Status__c = 'Published' order by Order__c asc",
+        var qsttr = "select Id, Name, Tile_Colour__c, Tile_Icon__c, parent__c, Function__c, (select name, id, report__r.Id, report__r.Name, report__r.summary__c, report__r.actual__c, report__r.target__c, report__r.difference__c, report__r.Source__c, report__r.Status__c from Associated_Reports__r where report__r.Status__c = 'Published' ) from Tiles__c where Status__c = 'Published' order by Order__c asc",
             xhr_opts = {
             url: _sfdccreds.sf_host_url + _sfdccreds.sfdc_api_version + '/query.json?q=' + qsttr,
             headers: {  "Authorization": "OAuth " + _sfdccreds.session_api}
@@ -309,12 +309,16 @@ var TileList= React.createClass({
         console.log ('TileList handleNavClick, setState : ' + new_state);
         this.setState(new_state);
     },
+    selectFunction: function (e) {
+      console.log ('TileList selectFunction : ' + e);
+      this.setState({funct: e});
+    },
     render: function () {
         var self = this;
         let cflt = this.state.filter; // this.getParams().flt;
         console.log ('TileList render : ' + cflt);
         let tiles = seq(this.state.tiles,
-            filter(x =>  x.Parent__c == cflt ));
+            filter(x =>  x.Parent__c == cflt && (this.state.funct == 'All' || x.Function__c == this.state.funct)));
         let tilereports = seq(this.state.tiles,
             compose(
                 filter(x => x.Id == cflt ),
@@ -328,8 +332,42 @@ var TileList= React.createClass({
             optionalElement = (<div> loading </div>);
         }
         var padding0 =  { padding: '0px' };
+
+        var i = 0;
         return (
             <section className="content">
+                <div className="page-header-kh">
+
+                <!-- Single button -->
+                <div className="btn-group" style={{"margin-right": "10px"}}>
+                  <button type="button" className="btn-kh btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    Function: {this.state.funct} <span className="caret"></span>
+                  </button>
+                  <ul className="dropdown-menu" role="menu">
+                    <li><a href="#" onClick={this.selectFunction.bind(this, 'CD')}>CD</a></li>
+                    <li><a href="#" onClick={this.selectFunction.bind(this, 'ETS')}>ETS</a></li>
+                    <li><a href="#" onClick={this.selectFunction.bind(this, 'Finance')}>Finance</a></li>
+                    <li><a href="#" onClick={this.selectFunction.bind(this, 'HR')}>HR</a></li>
+                    <li><a href="#" onClick={this.selectFunction.bind(this, 'Marketing')}>Marketing</a></li>
+                    <li><a href="#" onClick={this.selectFunction.bind(this, 'R&D')}>R&D</a></li>
+                    <li><a href="#" onClick={this.selectFunction.bind(this, 'SC')}>SC</a></li>
+                    <li className="divider"></li>
+                    <li><a href="#" onClick={this.selectFunction.bind(this, 'All')}>Reset</a></li>
+                  </ul>
+                </div>
+                <div className="btn-group">
+                  <button type="button" className="btn-kh btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    Region:  <span className="caret"></span>
+                  </button>
+                  <ul className="dropdown-menu" role="menu">
+                    <li><a href="#" >EMEA</a></li>
+                    <li><a href="#" >APAC</a></li>
+                    <li className="divider"></li>
+                    <li><a href="#" >Reset</a></li>
+                  </ul>
+                </div>
+
+                </div><br/>
                 <div className="page-header-kh">
                     <ol className="breadcrumb" style={padding0}>
                         <li className="margin-0"><a href="#" onClick={this.handleNavClick.bind(this, null)}><i className="fa fa-dashboard"></i> Home</a></li>
